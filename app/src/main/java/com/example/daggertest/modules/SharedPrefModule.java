@@ -1,4 +1,4 @@
-package com.example.daggertest;
+package com.example.daggertest.modules;
 
 import android.content.Context;
 import android.content.SharedPreferences;

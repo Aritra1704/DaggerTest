@@ -3,6 +3,10 @@ package com.example.daggertest;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import com.example.daggertest.components.AppComponent;
+import com.example.daggertest.components.DaggerAppComponent;
+import com.example.daggertest.modules.CalendarModule;
+import com.example.daggertest.modules.SharedPrefModule;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -10,20 +14,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import javax.inject.Inject;
+
+import dagger.internal.DaggerCollections;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     EditText inUsername, inNumber;
     Button btnSave, btnGet;
-    private MyComponent component;
+    private AppComponent component;
     @Inject
     SharedPreferences preferences;
+    @Inject
+    CalendarModule calendarModule;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +49,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
         initViews();
-        component = DaggerMyComponent.builder().sharedPrefModule(new SharedPrefModule(this)).build();
-        component.inject(this);
+        component = DaggerAppComponent.builder().sharedPrefModule(new SharedPrefModule(this)).build();
+        component.injectPreference(this);
+        component.injectCalendar(this);
+
     }
 
     @Override
@@ -52,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btnGet:
                 inUsername.setText(preferences.getString("Username", "default"));
                 inNumber.setText(preferences.getString("number", "12345"));
+                Toast.makeText(this, calendarModule.getCurrentDateinPattern(CalendarModule.DATE_FORMAT_WITH_COMMA), Toast.LENGTH_SHORT).show();
                 break;
 
             case R.id.btnSave:
